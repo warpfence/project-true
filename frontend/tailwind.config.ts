@@ -49,13 +49,31 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			brand: {
+  				navy: '#2B3A55',
+  				cream: '#FDFAF5',
+  				gold: '#F5E6C8',
+  				blue: '#4A6FA5',
+  				purple: '#7B61A6',
+  				'navy-light': '#3D5278',
+  				'blue-light': '#5A7FB5',
   			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		keyframes: {
+  			'scroll-bounce': {
+  				'0%, 100%': { transform: 'translateY(0)', opacity: '0.4' },
+  				'50%': { transform: 'translateY(8px)', opacity: '1' },
+  			},
+  		},
+  		animation: {
+  			'scroll-bounce': 'scroll-bounce 1.8s infinite ease-in-out',
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],
