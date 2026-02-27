@@ -27,6 +27,7 @@
 ## 코딩 컨벤션
 
 ### Python (Backend)
+
 - Python 3.11+ 타입 힌트 필수
 - 함수/변수: snake_case, 클래스: PascalCase
 - async/await 사용 (FastAPI 비동기 엔드포인트)
@@ -34,13 +35,16 @@
 - docstring은 한글로 작성
 
 ### TypeScript (Frontend)
+
 - 컴포넌트: PascalCase, 함수/변수: camelCase
 - interface 우선 사용 (type alias는 유니온/인터섹션에만)
 - React Server Components 기본, 필요 시에만 'use client'
 - 절대 경로 import (`@/components/...`)
 
 ### 공통
+
 - 환경 변수는 .env 파일로 관리, 코드에 하드코딩 금지
 - 에러 메시지는 한글로 작성
 - 주석은 한글로 작성
 - Git 커밋 메시지: `feat:`, `fix:`, `refactor:`, `docs:` 접두사 사용
+- 각 Task 구현이 완료되면 해당 Task를 커밋하고 명세서에 구현 완료 표시
