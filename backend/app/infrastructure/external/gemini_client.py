@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class GeminiClient(AbstractAIClient):
     """Google Gemini API 클라이언트."""
 
-    MODEL_NAME = "gemini-2.0-flash"
+    MODEL_NAME = "gemini-2.5-flash"
 
     def __init__(self) -> None:
         settings = get_settings()
@@ -57,11 +57,12 @@ class GeminiClient(AbstractAIClient):
         )
 
         try:
-            async for chunk in self._client.aio.models.generate_content_stream(
+            stream = await self._client.aio.models.generate_content_stream(
                 model=self.MODEL_NAME,
                 contents=contents,
                 config=config,
-            ):
+            )
+            async for chunk in stream:
                 if chunk.text:
                     yield chunk.text
         except Exception as e:

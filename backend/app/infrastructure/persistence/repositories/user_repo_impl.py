@@ -60,6 +60,7 @@ class UserRepositoryImpl(AbstractUserRepository):
         )
         self._session.add(model)
         await self._session.flush()
+        await self._session.refresh(model)
         return self._to_entity(model)
 
     async def update(self, user: User) -> User:
@@ -71,4 +72,5 @@ class UserRepositoryImpl(AbstractUserRepository):
         model.profile_image_url = user.profile_image_url
         model.subscription_type = user.subscription_type
         await self._session.flush()
+        await self._session.refresh(model)
         return self._to_entity(model)

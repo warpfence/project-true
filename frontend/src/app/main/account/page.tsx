@@ -4,41 +4,33 @@
  * 계정 정보 페이지.
  *
  * 프로필 이미지, 이메일, 닉네임을 표시하고 닉네임 수정 폼을 제공한다.
+ * UserContext를 통해 닉네임 변경 시 Header에도 즉시 반영된다.
  */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getMe, updateProfile } from "@/services/userService";
-import type { User } from "@/types/user";
+import { useUser } from "@/contexts/UserContext";
+import { updateProfile } from "@/services/userService";
 
 export default function AccountPage() {
   const { data: session } = useSession();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading, setUser } = useUser();
   const [nickname, setNickname] = useState("");
+  const [nicknameInit, setNicknameInit] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const data = await getMe();
-        setUser(data);
-        setNickname(data.nickname || "");
-      } catch {
-        // 에러 무시 - 세션 정보 사용
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadUser();
-  }, []);
+  // Context에서 user가 로드되면 닉네임 초기값을 설정한다.
+  if (user && !nicknameInit) {
+    setNickname(user.nickname || "");
+    setNicknameInit(true);
+  }
 
   const handleSave = async () => {
     if (!nickname.trim()) {
@@ -50,6 +42,7 @@ export default function AccountPage() {
       setIsSaving(true);
       setError(null);
       const updated = await updateProfile({ nickname: nickname.trim() });
+      // Context를 통해 Header 등 다른 컴포넌트에도 즉시 반영
       setUser(updated);
       setIsEditing(false);
       setSuccess(true);

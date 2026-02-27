@@ -35,6 +35,8 @@ async def get_me(
         email=user.email,
         nickname=user.nickname,
         profile_image_url=user.profile_image_url,
+        subscription_type=user.subscription_type,
+        created_at=user.created_at.isoformat() if user.created_at else None,
     )
 
 
@@ -78,4 +80,6 @@ async def update_me(
         email=updated.email,
         nickname=updated.nickname,
         profile_image_url=updated.profile_image_url,
+        subscription_type=updated.subscription_type,
+        created_at=updated.created_at.isoformat() if updated.created_at else None,
     )

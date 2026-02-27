@@ -80,6 +80,7 @@ class ChatRoomRepositoryImpl(AbstractChatRoomRepository):
         )
         self._session.add(model)
         await self._session.flush()
+        await self._session.refresh(model)
         return self._to_entity(model)
 
     async def update(self, chat_room: ChatRoom) -> ChatRoom:
@@ -91,4 +92,5 @@ class ChatRoomRepositoryImpl(AbstractChatRoomRepository):
         model.status = chat_room.status
         model.summary = chat_room.summary
         await self._session.flush()
+        await self._session.refresh(model)
         return self._to_entity(model)

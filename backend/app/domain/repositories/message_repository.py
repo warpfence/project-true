@@ -16,6 +16,7 @@ class AbstractMessageRepository(ABC):
         chat_room_id: UUID,
         limit: int = 50,
         before: datetime | None = None,
+        latest_first: bool = False,
     ) -> list[Message]:
         """채팅방 ID로 메시지 목록을 조회한다."""
         ...

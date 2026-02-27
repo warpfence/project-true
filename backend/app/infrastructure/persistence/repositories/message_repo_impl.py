@@ -34,12 +34,14 @@ class MessageRepositoryImpl(AbstractMessageRepository):
         chat_room_id: UUID,
         limit: int = 50,
         before: datetime | None = None,
+        latest_first: bool = False,
     ) -> list[Message]:
         """채팅방 ID로 메시지 목록을 조회한다."""
+        order = MessageModel.created_at.desc() if latest_first else MessageModel.created_at.asc()
         stmt = (
             select(MessageModel)
             .where(MessageModel.chat_room_id == chat_room_id)
-            .order_by(MessageModel.created_at.asc())
+            .order_by(order)
             .limit(limit)
         )
         if before:
@@ -65,4 +67,5 @@ class MessageRepositoryImpl(AbstractMessageRepository):
         )
         self._session.add(model)
         await self._session.flush()
+        await self._session.refresh(model)
         return self._to_entity(model)

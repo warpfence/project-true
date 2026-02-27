@@ -64,6 +64,7 @@ class GetChatHistoryUseCase:
             messages = await self._message_repo.find_by_chat_room_id(
                 chat_room_id=room.id,
                 limit=1,
+                latest_first=True,
             )
             last_preview = None
             if messages:

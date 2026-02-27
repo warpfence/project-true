@@ -4,6 +4,7 @@
  * Header 컴포넌트.
  *
  * 좌측 프로젝트 이름, 우측 Avatar + DropdownMenu로 프로필/로그아웃.
+ * UserContext를 통해 DB 닉네임을 실시간으로 반영한다.
  */
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/contexts/UserContext";
 import { PROJECT_NAME } from "@/lib/constants";
 import { LogOut, User } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -23,9 +25,10 @@ import Link from "next/link";
 export default function Header() {
   const { logout } = useAuth();
   const { data: session } = useSession();
+  const { user } = useUser();
 
-  const userName = session?.user?.name || "사용자";
-  const userImage = session?.user?.image || undefined;
+  const userName = user?.nickname || session?.user?.name || "사용자";
+  const userImage = user?.profile_image_url || session?.user?.image || undefined;
   const userInitial = userName.charAt(0);
 
   return (

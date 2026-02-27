@@ -10,6 +10,8 @@ class UserResponse(BaseModel):
     email: str
     nickname: str | None
     profile_image_url: str | None
+    subscription_type: str = "free"
+    created_at: str | None = None
 
     class Config:
         from_attributes = True
