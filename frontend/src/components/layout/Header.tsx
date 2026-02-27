@@ -3,7 +3,8 @@
 /**
  * Header 컴포넌트.
  *
- * 좌측 프로젝트 이름, 우측 Avatar + DropdownMenu로 프로필/로그아웃.
+ * 좌측 TrueLogo + 프로젝트 이름, 우측 Avatar + DropdownMenu.
+ * 온보딩 크림 톤 테마를 적용한다.
  * UserContext를 통해 DB 닉네임을 실시간으로 반영한다.
  */
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,9 +16,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import TrueLogo from "@/components/icons/TrueLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/contexts/UserContext";
-import { PROJECT_NAME } from "@/lib/constants";
 import { LogOut, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -32,9 +33,22 @@ export default function Header() {
   const userInitial = userName.charAt(0);
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-white px-4 lg:px-6">
-      <Link href="/main/start" className="font-semibold text-lg">
-        {PROJECT_NAME}
+    <header
+      className="flex h-14 items-center justify-between px-4 lg:px-6"
+      style={{
+        background: "rgba(253,250,245,0.95)",
+        borderBottom: "1px solid rgba(43,58,85,0.08)",
+        backdropFilter: "blur(8px)",
+      }}
+    >
+      <Link
+        href="/main/start"
+        className="flex items-center gap-2.5 no-underline"
+      >
+        <TrueLogo size={28} />
+        <span className="text-lg font-bold tracking-tight text-brand-navy">
+          TRUE
+        </span>
       </Link>
 
       <DropdownMenu>

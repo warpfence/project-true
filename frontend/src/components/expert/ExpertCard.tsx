@@ -3,11 +3,12 @@
 /**
  * ExpertCard 컴포넌트.
  *
- * shadcn Card 기반의 전문가 선택 카드.
+ * 온보딩 CategorySection과 동일한 그라데이션 카드 스타일.
  * 아이콘, 이름, 설명, 호버 효과를 포함하며 클릭 시 채팅방을 생성한다.
  */
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EXPERT_TYPES } from "@/lib/constants";
 import type { Expert } from "@/types/expert";
+import type { ExpertType } from "@/types/expert";
 
 interface ExpertCardProps {
   expert: Expert;
@@ -20,22 +21,33 @@ export default function ExpertCard({
   onClick,
   disabled = false,
 }: ExpertCardProps) {
+  const meta = EXPERT_TYPES[expert.expert_type as ExpertType];
+
   return (
-    <Card
-      className={`cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
+    <div
+      className={`rounded-[22px] px-6 pt-8 pb-7 text-left border border-white/60 transition-all duration-300 ${
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_12px_36px_rgba(0,0,0,0.1)]"
       }`}
+      style={{
+        background: meta
+          ? `linear-gradient(135deg, ${meta.bgFrom} 0%, ${meta.bgTo} 100%)`
+          : "#F7F3ED",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+      }}
       onClick={() => !disabled && onClick(expert)}
     >
-      <CardHeader className="text-center pb-2">
-        <span className="text-5xl">{expert.icon}</span>
-        <CardTitle className="mt-2 text-lg">{expert.name}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground text-center">
-          {expert.description}
-        </p>
-      </CardContent>
-    </Card>
+      <div className="text-4xl mb-4">{expert.icon}</div>
+      <h3
+        className="text-lg font-bold mb-2 tracking-tight"
+        style={{ color: meta?.colorHex || "#2B3A55" }}
+      >
+        {expert.name}
+      </h3>
+      <p className="text-sm text-[#5C6B7E] leading-relaxed m-0">
+        {expert.description}
+      </p>
+    </div>
   );
 }

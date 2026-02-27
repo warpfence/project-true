@@ -5,6 +5,7 @@
  *
  * 데스크톱: 왼쪽 고정 사이드바
  * 모바일: Sheet(드로어) 방식
+ * 온보딩 크림 톤 테마를 적용한다.
  */
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -43,8 +44,8 @@ function SidebarNav() {
             variant="ghost"
             className={`justify-start gap-3 ${
               isActive
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground"
+                ? "bg-brand-navy/[0.08] text-brand-navy font-semibold"
+                : "text-brand-navy/60 hover:text-brand-navy hover:bg-brand-navy/[0.04]"
             }`}
             asChild
           >
@@ -65,21 +66,35 @@ export default function Sidebar() {
   return (
     <>
       {/* 데스크톱 사이드바 */}
-      <aside className="hidden md:flex w-56 flex-col border-r bg-white">
+      <aside
+        className="hidden md:flex w-56 flex-col"
+        style={{
+          background: "#F7F3ED",
+          borderRight: "1px solid rgba(43,58,85,0.08)",
+        }}
+      >
         <SidebarNav />
       </aside>
 
-      {/* 모바일 Sheet 트리거 (헤더 하단에 고정) */}
+      {/* 모바일 Sheet 트리거 */}
       <div className="md:hidden fixed bottom-4 left-4 z-50">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="rounded-full shadow-lg">
-              <Menu className="h-5 w-5" />
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full shadow-lg border-brand-navy/10 bg-brand-cream"
+            >
+              <Menu className="h-5 w-5 text-brand-navy" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-56 p-0">
-            <div className="p-4 font-semibold">메뉴</div>
-            <Separator />
+          <SheetContent
+            side="left"
+            className="w-56 p-0"
+            style={{ background: "#F7F3ED" }}
+          >
+            <div className="p-4 font-semibold text-brand-navy">메뉴</div>
+            <Separator className="bg-brand-navy/[0.08]" />
             <SidebarNav />
           </SheetContent>
         </Sheet>
