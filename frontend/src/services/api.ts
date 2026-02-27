@@ -94,6 +94,13 @@ export async function apiPatch<T>(
   return response.json();
 }
 
+/** DELETE 요청 */
+export async function apiDelete(endpoint: string): Promise<void> {
+  await fetchWithAuth(endpoint, {
+    method: "DELETE",
+  });
+}
+
 /** SSE 스트리밍 POST 요청 (ReadableStream 반환) */
 export async function apiPostStream(
   endpoint: string,

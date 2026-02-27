@@ -81,10 +81,20 @@ export const PROJECT_NAME = "AI 전문가 상담";
 export const PROJECT_DESCRIPTION =
   "생성형 AI 전문가에게 부담 없이 상담받아 보세요.";
 
-/** 사이드바 메뉴 */
-export const SIDEBAR_MENU = [
+/** 사이드바 메뉴 (상단) */
+export const SIDEBAR_MENU_TOP = [
   { href: "/main/start", label: "시작하기", icon: "Play" },
   { href: "/main/history", label: "나의 상담 이력", icon: "History" },
+] as const;
+
+/** 사이드바 메뉴 (하단) */
+export const SIDEBAR_MENU_BOTTOM = [
   { href: "/main/help", label: "도움말", icon: "HelpCircle" },
   { href: "/main/account", label: "계정 정보", icon: "User" },
+] as const;
+
+/** 사이드바 메뉴 전체 (모바일 등 평면 렌더링용) */
+export const SIDEBAR_MENU = [
+  ...SIDEBAR_MENU_TOP,
+  ...SIDEBAR_MENU_BOTTOM,
 ] as const;

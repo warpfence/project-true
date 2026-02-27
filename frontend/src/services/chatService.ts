@@ -1,6 +1,6 @@
 /** 채팅 관련 API 서비스 */
 
-import { apiGet, apiPost, apiPatch, apiPostStream } from "./api";
+import { apiGet, apiPost, apiPatch, apiDelete, apiPostStream } from "./api";
 import type {
   ChatRoom,
   ChatRoomListResponse,
@@ -60,6 +60,11 @@ export async function sendMessage(
 /** 상담 요약 생성 */
 export async function createSummary(roomId: string): Promise<SummaryResponse> {
   return apiPost<SummaryResponse>(`/api/chat/rooms/${roomId}/summary`);
+}
+
+/** 채팅방 삭제 */
+export async function deleteRoom(roomId: string): Promise<void> {
+  return apiDelete(`/api/chat/rooms/${roomId}`);
 }
 
 /** 채팅방 정보 수정 */

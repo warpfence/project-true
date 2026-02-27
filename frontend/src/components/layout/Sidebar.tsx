@@ -3,14 +3,18 @@
 /**
  * Sidebar 컴포넌트.
  *
- * 데스크톱: 왼쪽 고정 사이드바
+ * 데스크톱: 왼쪽 고정 사이드바 (상단 메뉴 + 하단 메뉴 분리)
  * 모바일: Sheet(드로어) 방식
  * 온보딩 크림 톤 테마를 적용한다.
  */
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { SIDEBAR_MENU } from "@/lib/constants";
+import {
+  SIDEBAR_MENU,
+  SIDEBAR_MENU_TOP,
+  SIDEBAR_MENU_BOTTOM,
+} from "@/lib/constants";
 import {
   Play,
   History,
@@ -29,12 +33,14 @@ const iconMap = {
   User,
 } as const;
 
-function SidebarNav() {
+type MenuItem = (typeof SIDEBAR_MENU)[number];
+
+function NavItems({ items }: { items: readonly MenuItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-1 p-4">
-      {SIDEBAR_MENU.map((item) => {
+    <div className="flex flex-col gap-1">
+      {items.map((item) => {
         const Icon = iconMap[item.icon as keyof typeof iconMap];
         const isActive = pathname === item.href;
 
@@ -56,6 +62,30 @@ function SidebarNav() {
           </Button>
         );
       })}
+    </div>
+  );
+}
+
+/** 데스크톱 사이드바: 상단/하단 분리 */
+function DesktopNav() {
+  return (
+    <nav className="flex flex-col flex-1 p-4">
+      <NavItems items={SIDEBAR_MENU_TOP} />
+      <div className="mt-auto">
+        <Separator className="bg-brand-navy/[0.06] mb-3" />
+        <NavItems items={SIDEBAR_MENU_BOTTOM} />
+      </div>
+    </nav>
+  );
+}
+
+/** 모바일 Sheet: 평면 렌더링 */
+function MobileNav() {
+  return (
+    <nav className="flex flex-col gap-1 p-4">
+      <NavItems items={SIDEBAR_MENU_TOP} />
+      <Separator className="bg-brand-navy/[0.06] my-2" />
+      <NavItems items={SIDEBAR_MENU_BOTTOM} />
     </nav>
   );
 }
@@ -73,7 +103,7 @@ export default function Sidebar() {
           borderRight: "1px solid rgba(43,58,85,0.08)",
         }}
       >
-        <SidebarNav />
+        <DesktopNav />
       </aside>
 
       {/* 모바일 Sheet 트리거 */}
@@ -95,7 +125,7 @@ export default function Sidebar() {
           >
             <div className="p-4 font-semibold text-brand-navy">메뉴</div>
             <Separator className="bg-brand-navy/[0.08]" />
-            <SidebarNav />
+            <MobileNav />
           </SheetContent>
         </Sheet>
       </div>

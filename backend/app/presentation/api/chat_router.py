@@ -4,8 +4,9 @@ POST /api/chat/rooms (채팅방 생성)
 POST /api/chat/rooms/{room_id}/messages (메시지 전송, SSE 스트리밍)
 GET /api/chat/rooms (채팅방 목록)
 GET /api/chat/rooms/{room_id} (채팅방 상세)
-POST /api/chat/rooms/{room_id}/summary (요약 생성 - Phase 7)
-PATCH /api/chat/rooms/{room_id} (채팅방 수정 - Phase 7)
+POST /api/chat/rooms/{room_id}/summary (요약 생성)
+PATCH /api/chat/rooms/{room_id} (채팅방 수정)
+DELETE /api/chat/rooms/{room_id} (채팅방 아카이브 후 삭제)
 """
 
 import json
@@ -29,6 +30,7 @@ from app.application.use_cases.send_message import SendMessageUseCase
 from app.application.use_cases.start_consultation import (
     StartConsultationUseCase,
 )
+from app.application.use_cases.delete_chat_room import DeleteChatRoomUseCase
 from app.application.use_cases.summarize_consultation import (
     SummarizeConsultationUseCase,
 )
@@ -40,7 +42,9 @@ from app.domain.repositories.message_repository import (
     AbstractMessageRepository,
 )
 from app.infrastructure.external.gemini_client import GeminiClient
+from app.domain.repositories.archive_repository import AbstractArchiveRepository
 from app.presentation.dependencies import (
+    get_archive_repository,
     get_chat_room_repository,
     get_expert_repository,
     get_message_repository,
@@ -143,6 +147,19 @@ def get_summarize_consultation_use_case(
         chat_room_repository=chat_room_repo,
         message_repository=message_repo,
         ai_client=ai_client,
+    )
+
+
+def get_delete_chat_room_use_case(
+    chat_room_repo: AbstractChatRoomRepository = Depends(
+        get_chat_room_repository
+    ),
+    archive_repo: AbstractArchiveRepository = Depends(get_archive_repository),
+) -> DeleteChatRoomUseCase:
+    """채팅방 삭제 Use Case 의존성을 제공한다."""
+    return DeleteChatRoomUseCase(
+        chat_room_repository=chat_room_repo,
+        archive_repository=archive_repo,
     )
 
 
@@ -356,3 +373,25 @@ async def update_room(
         "title": updated.title,
         "status": updated.status,
     }
+
+
+@router.delete("/rooms/{room_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_room(
+    room_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
+    use_case: DeleteChatRoomUseCase = Depends(get_delete_chat_room_use_case),
+):
+    """채팅방을 아카이브 후 삭제한다."""
+    try:
+        await use_case.execute(user_id=user_id, room_id=room_id)
+    except ValueError as e:
+        error_msg = str(e)
+        if "접근 권한" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=error_msg,
+            )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=error_msg,
+        )

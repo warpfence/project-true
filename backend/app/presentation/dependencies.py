@@ -21,6 +21,9 @@ from app.infrastructure.persistence.repositories.chat_room_repo_impl import (
 from app.infrastructure.persistence.repositories.message_repo_impl import (
     MessageRepositoryImpl,
 )
+from app.infrastructure.persistence.repositories.archive_repo_impl import (
+    ArchiveRepositoryImpl,
+)
 from app.domain.repositories.user_repository import AbstractUserRepository
 from app.domain.repositories.expert_repository import AbstractExpertRepository
 from app.domain.repositories.chat_room_repository import (
@@ -29,6 +32,7 @@ from app.domain.repositories.chat_room_repository import (
 from app.domain.repositories.message_repository import (
     AbstractMessageRepository,
 )
+from app.domain.repositories.archive_repository import AbstractArchiveRepository
 
 
 # --- 세션 ---
@@ -72,3 +76,10 @@ def get_message_repository(
 ) -> AbstractMessageRepository:
     """메시지 리포지토리를 제공한다."""
     return MessageRepositoryImpl(session)
+
+
+def get_archive_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> AbstractArchiveRepository:
+    """아카이브 리포지토리를 제공한다."""
+    return ArchiveRepositoryImpl(session)

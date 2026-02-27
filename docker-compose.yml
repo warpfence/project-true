@@ -43,6 +43,7 @@ services:
       AUTH_URL: http://localhost:3000
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      INTERNAL_API_URL: http://backend:8000
     depends_on:
       - backend
 

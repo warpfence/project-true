@@ -7,7 +7,15 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+/**
+ * 서버사이드 API URL.
+ * Docker 환경에서 NextAuth 콜백은 frontend 컨테이너 내부에서 실행되므로
+ * localhost가 아닌 Docker 내부 네트워크 주소(INTERNAL_API_URL)를 우선 사용한다.
+ */
+const API_URL =
+  process.env.INTERNAL_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
