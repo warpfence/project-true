@@ -1,0 +1,59 @@
+# 실행
+# sudo docker compose -f docker-compose_project-true_nas.yml up -d
+# sudo docker compose -f docker-compose_project-true_nas.yml down
+
+services:
+    db:
+        image: postgres:16
+        environment:
+            POSTGRES_DB: ai_consultation
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - /volume1/docker/project-true/postgresql:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        restart: always
+
+    backend:
+        image: project-true-backend:latest
+        environment:
+            DATABASE_URL: postgresql+asyncpg://postgres:${DB_PASSWORD}@db:5432/ai_consultation
+            GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+            GEMINI_API_KEY: ${GEMINI_API_KEY}
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+            JWT_ALGORITHM: HS256
+            JWT_EXPIRE_MINUTES: 30
+        depends_on:
+            db:
+                condition: service_healthy
+        restart: always
+
+    frontend:
+        image: project-true-frontend:latest
+        environment:
+            AUTH_SECRET: ${AUTH_SECRET}
+            AUTH_URL: https://honi001.synology.me:9008
+            AUTH_TRUST_HOST: "true"
+            GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+            INTERNAL_API_URL: http://backend:8000
+        depends_on:
+            - backend
+        restart: always
+
+    nginx:
+        image: nginx:alpine
+        ports:
+            - "9008:443"
+        volumes:
+            - /volume1/docker/project-true/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+            - /volume1/docker/project-true/ssl:/etc/nginx/ssl:ro
+        depends_on:
+            - frontend
+            - backend
+        restart: always

@@ -30,6 +30,12 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+*.tar
+
+# SSL 인증서
+*.pem
+*.key
+*.crt
 
 # Database
 *.db

@@ -7,8 +7,8 @@
 
 ## 현재 상태
 
-- **브랜치**: `001-ai-consultation-chat`
-- **구현 완료**: 전체 87개 태스크 (T001-T087) 구현 완료
+- **브랜치**: `main` (단일 브랜치 운영)
+- **구현 완료**: 전체 87개 태스크 (T001-T087) + 온보딩 리디자인 + 채팅 이력 삭제
 - **태스크 명세**: `specs/001-ai-consultation-chat/tasks.md`
 - **설계 문서**: `specs/001-ai-consultation-chat/plan.md`, `spec.md`, `data-model.md`, `contracts/`
 
@@ -48,9 +48,11 @@ project_true/
 │   │   ├── auth.ts             # NextAuth.js 설정
 │   │   └── middleware.ts       # 인증 미들웨어
 │   └── package.json
-├── docker-compose.yml          # PostgreSQL + Backend + Frontend
-├── .env                        # 환경 변수 (gitignore 대상)
-└── specs/                      # Speckit 설계 산출물
+├── docker-compose.yml                      # 로컬 개발용 (build 사용)
+├── docker-compose_project-true_nas.yml     # NAS 배포용 (image + Nginx SSL)
+├── nginx/nginx.conf                        # Nginx 리버스 프록시 설정
+├── .env                                    # 환경 변수 (gitignore 대상)
+└── specs/                                  # Speckit 설계 산출물
 ```
 
 ## 주요 API 엔드포인트
@@ -67,6 +69,7 @@ project_true/
 | POST | /api/chat/rooms/{id}/messages | 메시지 전송 (SSE 스트리밍) |
 | POST | /api/chat/rooms/{id}/summary | 상담 요약 생성 |
 | PATCH | /api/chat/rooms/{id} | 채팅방 수정 |
+| DELETE | /api/chat/rooms/{id} | 채팅방 아카이브 후 삭제 |
 | GET | /api/users/me | 사용자 프로필 |
 | PATCH | /api/users/me | 닉네임 수정 |
 
@@ -110,7 +113,7 @@ project_true/
 ## 실행 방법
 
 ```bash
-# Docker Compose (PostgreSQL + Backend + Frontend)
+# 로컬 개발 — Docker Compose (PostgreSQL + Backend + Frontend)
 docker compose up --build
 
 # 로컬 개발 (Backend)
@@ -119,3 +122,59 @@ cd backend && source venv/bin/activate && uvicorn app.main:app --reload
 # 로컬 개발 (Frontend)
 cd frontend && npm run dev
 ```
+
+## NAS 배포 (Synology Container Manager)
+
+### 배포 아키텍처
+
+```
+https://honi001.synology.me:9008
+  → Nginx (SSL 종단, 포트 443→9008)
+    → /api/auth/* → frontend:3000 (NextAuth)
+    → /api/*      → backend:8000  (FastAPI)
+    → /*          → frontend:3000 (Next.js)
+```
+
+- **NAS IP**: 192.168.0.15
+- **도메인**: honi001.synology.me
+- **설정 파일**: `docker-compose_project-true_nas.yml`
+- **Nginx 설정**: `nginx/nginx.conf`
+
+### 이미지 빌드 및 내보내기 (Mac → NAS)
+
+NAS는 x86_64 아키텍처이므로 `--platform linux/amd64` 필수.
+`NEXT_PUBLIC_API_URL`은 빌드타임에 인라인되므로 반드시 NAS 도메인/포트로 지정.
+
+```bash
+# backend (포트 변경 없으면 재빌드 불필요)
+docker build --platform linux/amd64 -t project-true-backend:latest ./backend
+docker save project-true-backend:latest -o project-true-backend.tar
+
+# frontend (NEXT_PUBLIC_API_URL = Nginx HTTPS 주소)
+docker build --platform linux/amd64 \
+  --build-arg NEXT_PUBLIC_API_URL=https://honi001.synology.me:9008 \
+  -t project-true-frontend:latest ./frontend
+docker save project-true-frontend:latest -o project-true-frontend.tar
+```
+
+### NAS 파일 배치
+
+| 파일 | NAS 경로 |
+|------|----------|
+| `nginx.conf` | `/volume1/docker/project-true/nginx/nginx.conf` |
+| SSL 인증서 | `/volume1/docker/project-true/ssl/fullchain.pem`, `privkey.pem` |
+| `.env` | docker-compose와 같은 경로 |
+| PostgreSQL 데이터 | `/volume1/docker/project-true/postgresql/` |
+
+### Google OAuth 설정
+
+Google Cloud Console에서 승인된 리디렉션 URI:
+```
+https://honi001.synology.me:9008/api/auth/callback/google
+```
+
+### 공유기 포트 포워딩
+
+| 외부 포트 | 내부 IP | 내부 포트 |
+|----------|---------|----------|
+| 9008 | 192.168.0.15 | 9008 |
