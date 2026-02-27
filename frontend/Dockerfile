@@ -6,11 +6,15 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# 빌드
+# 빌드 (NEXT_PUBLIC_* 환경변수는 빌드타임에 인라인됨)
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 RUN npm run build
 
 # 프로덕션 실행
